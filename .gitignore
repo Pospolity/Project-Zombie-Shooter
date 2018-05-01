@@ -86,4 +86,11 @@ Session.vim
 # Auto-generated tag files
 tags
 
+# Directories created by Clion IDE
 .idea/
+
+# Not used game assets
+GameAssets_tmp
+
+# todo list
+TODO
