@@ -6,7 +6,7 @@
 
 int main() {
 
-    sf::RenderWindow window(sf::VideoMode(640,480),"Hello SFML");
+    sf::RenderWindow window(sf::VideoMode(1920,1080),"Hello SFML");
 
     sf::Font font;
     font.loadFromFile("assets/fonts/OpenSans-Bold.ttf");
