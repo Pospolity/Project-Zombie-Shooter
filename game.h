@@ -1,0 +1,10 @@
+//
+// Created on 05/05/2018.
+//
+
+#ifndef PROJECT_ZOMBIE_SHOOTER_GAME_H
+#define PROJECT_ZOMBIE_SHOOTER_GAME_H
+
+int StartGame();
+
+#endif //PROJECT_ZOMBIE_SHOOTER_GAME_H

@@ -10,7 +10,7 @@
 class IGameObject {
 public:
     virtual void MakeAction(GameResources & gameResources) = 0;
-    virtual void CheckCollision(int posX, int posY) = 0;
+    virtual bool CheckCollision(int posX, int posY) = 0;
 };
 
 
