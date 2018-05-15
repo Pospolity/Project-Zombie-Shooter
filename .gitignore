@@ -89,6 +89,10 @@ tags
 # Directories created by Clion IDE
 .idea/
 
+# CMake
+cmake-build-debug/
+cmake-build-release/
+
 # Not used game assets
 GameAssets_tmp
 
