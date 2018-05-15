@@ -5,7 +5,6 @@
 #include <iostream>
 
 // editor of maps
-int StartMapEditor() {
+void StartMapEditor() {
     std::cout << "Map editor started!" << std::endl;
-    return 0;
 }

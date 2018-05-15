@@ -5,6 +5,6 @@
 #ifndef PROJECT_ZOMBIE_SHOOTER_GAME_H
 #define PROJECT_ZOMBIE_SHOOTER_GAME_H
 
-int StartGame();
+void StartGame();
 
 #endif //PROJECT_ZOMBIE_SHOOTER_GAME_H

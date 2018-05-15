@@ -5,6 +5,6 @@
 #ifndef PROJECT_ZOMBIE_SHOOTER_MAPEDITOR_H
 #define PROJECT_ZOMBIE_SHOOTER_MAPEDITOR_H
 
-int StartMapEditor();
+void StartMapEditor();
 
 #endif //PROJECT_ZOMBIE_SHOOTER_MAPEDITOR_H

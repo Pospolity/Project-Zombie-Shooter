@@ -5,7 +5,6 @@
 #include <iostream>
 
 // main game function
-int StartGame() {
+void StartGame() {
     std::cout << "Game started!" << std::endl;
-    return 0;
 }
