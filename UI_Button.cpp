@@ -5,14 +5,21 @@
 #include "UI_Button.h"
 //#include "iostream"
 
-UI_Button::UI_Button() :
+UI_Button::UI_Button(const sf::RenderWindow * window) :
+        window(window),
         btnText(),
-        btnField() {}
+        btnField(),
+        isActive(false),
+        keepActive(false),
+        isVisible(true)
+{}
 
-UI_Button::UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive, bool isVisible) :
+UI_Button::UI_Button(const sf::RenderWindow * window, const sf::Text& text, const sf::Vector2f& size, bool isActive, bool keepActive, bool isVisible) :
+        window(window),
         btnText(text),
         btnField(sf::RectangleShape(size)),
         isActive(isActive),
+        keepActive(keepActive),
         isVisible(isVisible) {
 
     // set text origin to center of the text and set position to the center of the button
@@ -24,38 +31,48 @@ UI_Button::UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActi
 
 UI_Button::~UI_Button() {}
 
-void UI_Button::HandleMouseMoveEvent(const sf::Event::MouseMoveEvent &e) {
-    sf::FloatRect btnFieldRect = btnField.getGlobalBounds();
-    bool isMouseInside = true;
-    if (e.x < btnFieldRect.left)
-        isMouseInside = false;
-    else if (e.x > btnFieldRect.left + btnFieldRect.width)
-        isMouseInside = false;
-    else if (e.y < btnFieldRect.top)
-        isMouseInside = false;
-    else if (e.y > btnFieldRect.top + btnFieldRect.height)
-        isMouseInside = false;
+void UI_Button::Update() {
 
-    isFocused = isMouseInside;
+    if(!keepActive && isActive) // deactivate after draw/action if keepActive not set
+        Deactivate();
+
+    handleMouse();
 }
 
-void UI_Button::HandleMouseButtonPressedEvent(const sf::Event::MouseButtonEvent &e){
-    if(isFocused && e.button == sf::Mouse::Left)
-        isPressed = true;
-}
+void UI_Button::handleMouse() {
 
-void UI_Button::HandleMouseButtonReleasedEvent(const sf::Event::MouseButtonEvent &e){
-    if(isFocused && isPressed && e.button == sf::Mouse::Left){
+    handleMouseMove();
 
-        isActive = true;
-
-        if(handlerFunction)
-        handlerFunction();
-
-        if(!keepActive)
-            Deactivate();
+    if(isHovered) {
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+            isPressed = true;
+        else if (isPressed) { // was pressed, but now isn't
+            isActive = true;
+            isPressed = false;
+        }
     }
-    isPressed = false;
+    else
+        isPressed = false;
+}
+
+void UI_Button::handleMouseMove() {
+    sf::FloatRect btnFieldRect = btnField.getGlobalBounds();
+
+    bool isMouseInside = true;
+    sf::Vector2f mousePosition(sf::Mouse::getPosition(*window)); // automatically casted from int to float
+
+    if (mousePosition.x < btnFieldRect.left)
+        isMouseInside = false;
+    else if (mousePosition.x > btnFieldRect.left + btnFieldRect.width)
+        isMouseInside = false;
+    else if (mousePosition.y < btnFieldRect.top)
+        isMouseInside = false;
+    else if (mousePosition.y > btnFieldRect.top + btnFieldRect.height)
+        isMouseInside = false;
+
+
+
+    isHovered = isMouseInside;
 }
 
 bool UI_Button::IsActive() {
@@ -64,11 +81,6 @@ bool UI_Button::IsActive() {
 
 void UI_Button::Deactivate() {
     isActive = false;
-}
-
-void UI_Button::SetHandlerFunction(const buttonHandlerFunction & handlerFunction, bool shouldKeepActive) {
-    this->handlerFunction = handlerFunction;
-    this->keepActive = shouldKeepActive;
 }
 
 void UI_Button::SetFillColor(const sf::Color &color) {
@@ -115,4 +127,6 @@ void UI_Button::SetPosition(const sf::Vector2f &position) {
     sf::FloatRect btnRect = this->GetGlobalBounds();
     btnText.setPosition(btnRect.left + btnRect.width / 2.0f, btnRect.top + btnRect.height / 2.0f);
 }
+
+
 

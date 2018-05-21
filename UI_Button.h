@@ -8,31 +8,17 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-typedef void (*buttonHandlerFunction)(void);
-
 class UI_Button : public sf::Drawable {
-    sf::Text btnText;
-    sf::RectangleShape btnField;
-    bool isActive;
-    bool isFocused = false;
-    bool isPressed = false;
-    bool isVisible;
-    bool keepActive = false;
-    buttonHandlerFunction handlerFunction = nullptr;
-
 
 public:
-    UI_Button();
-    UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive = false, bool isVisible = true);
+    UI_Button(const sf::RenderWindow * window);
+    UI_Button(const sf::RenderWindow * window, const sf::Text& text, const sf::Vector2f& size, bool isActive = false, bool keepActive = false, bool isVisible = true);
     virtual ~UI_Button();
 
-    virtual void HandleMouseMoveEvent(const sf::Event::MouseMoveEvent &e);
-    virtual void HandleMouseButtonPressedEvent(const sf::Event::MouseButtonEvent &e);
-    virtual void HandleMouseButtonReleasedEvent(const sf::Event::MouseButtonEvent &e);
+    virtual void Update();
 
     bool IsActive();
     void Deactivate();
-    void SetHandlerFunction(const buttonHandlerFunction & handlerFunction, bool shouldKeepActive = false);
     void SetFillColor(const sf::Color &color);
     void SetSize(const sf::Vector2f &size);
     void SetTexture(const sf::Texture * texture, bool resetRect = false);
@@ -59,6 +45,22 @@ protected:
 
         target.draw(btnText, states);
     }
+
+private:
+    virtual void handleMouse();
+    void handleMouseMove();
+
+    sf::Text btnText;
+    sf::RectangleShape btnField;
+
+    bool isActive;
+    bool isHovered = false;
+    bool isPressed = false;
+    bool isVisible;
+    bool keepActive;
+
+    const sf::RenderWindow * window;
+
 };
 
 
