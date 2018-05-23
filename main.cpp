@@ -6,6 +6,7 @@
 #include "game.h"
 #include "mapEditor.h"
 #include "UI_Button.h"
+#include "MainResources.h"
 #include <iostream>
 #include <string>
 
@@ -26,6 +27,11 @@ int main() {
     sf::Font font;
     font.loadFromFile("assets/fonts/OpenSans-Bold.ttf");
 
+    MainResources mainResources{
+        &window,
+        &font
+    };
+
     const float windowSectionHeight = float(window.getSize().y) / (NUMBER_OF_BUTTONS + 1);
     const float windowSectionWidth = float(window.getSize().x);
 
@@ -35,7 +41,7 @@ int main() {
     infoText.setPosition(windowSectionWidth / 2.0f, windowSectionHeight / 2.0f);
 
 
-    std::vector<UI_Button> buttons(NUMBER_OF_BUTTONS, UI_Button(&window));
+    std::vector<UI_Button> buttons(NUMBER_OF_BUTTONS, UI_Button());
     //UI_Button buttons[NUMBER_OF_BUTTONS]{&window};
 
     // SET BUTTON'S TEXTS
@@ -50,8 +56,7 @@ int main() {
         btnCenterPosY -= BTN_MARGIN_DOWN / 2.0f; // make the button align to the top of the window section by moving a center of the button up by half the size of a down margin
 
         buttons[i].SetSize(sf::Vector2f(windowSectionWidth - BTN_MARGIN_HORIZONTAL* 2, windowSectionHeight - BTN_MARGIN_DOWN));
-        sf::FloatRect btnRect = buttons[i].GetLocalBounds();
-        buttons[i].SetOrigin(sf::Vector2f(btnRect.left + btnRect.width / 2.0f, btnRect.top + btnRect.height / 2.0f));
+        buttons[i].SetOrigin(OriginPosition::MIDDLE);
         buttons[i].SetPosition(sf::Vector2f(btnCenterPosX, btnCenterPosY));
         buttons[i].SetFillColor(BTN_FILL_COLOR);
         buttons[i].SetText(buttonTexts[i].c_str(), font, BTN_FONT_SIZE);
@@ -75,11 +80,13 @@ int main() {
             }
         }
 
+
+        sf::Vector2f mousePosition(sf::Mouse::getPosition(window));
         for (int i = 0; i < NUMBER_OF_BUTTONS; i++) {
-            buttons[i].Update();
+            buttons[i].Update(mousePosition);
         }
         if (buttons[buttonsOptions::MAP_EDITOR].IsActive())
-            MapEditor(window).Start();
+            MapEditor(mainResources).Start();
 
         // DRAW
 

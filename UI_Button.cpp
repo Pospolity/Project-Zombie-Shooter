@@ -5,8 +5,7 @@
 #include "UI_Button.h"
 //#include "iostream"
 
-UI_Button::UI_Button(const sf::RenderWindow * window) :
-        window(window),
+UI_Button::UI_Button() :
         btnText(),
         btnField(),
         isActive(false),
@@ -14,8 +13,7 @@ UI_Button::UI_Button(const sf::RenderWindow * window) :
         isVisible(true)
 {}
 
-UI_Button::UI_Button(const sf::RenderWindow * window, const sf::Text& text, const sf::Vector2f& size, bool isActive, bool keepActive, bool isVisible) :
-        window(window),
+UI_Button::UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive, bool keepActive, bool isVisible) :
         btnText(text),
         btnField(sf::RectangleShape(size)),
         isActive(isActive),
@@ -31,17 +29,17 @@ UI_Button::UI_Button(const sf::RenderWindow * window, const sf::Text& text, cons
 
 UI_Button::~UI_Button() {}
 
-void UI_Button::Update() {
+void UI_Button::Update(const sf::Vector2f &mousePosition) {
 
     if(!keepActive && isActive) // deactivate after draw/action if keepActive not set
         Deactivate();
 
-    handleMouse();
+    handleMouse(mousePosition);
 }
 
-void UI_Button::handleMouse() {
+void UI_Button::handleMouse(const sf::Vector2f &mousePosition) {
 
-    handleMouseMove();
+    handleMouseMove(mousePosition);
 
     if(isHovered) {
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -55,11 +53,10 @@ void UI_Button::handleMouse() {
         isPressed = false;
 }
 
-void UI_Button::handleMouseMove() {
+void UI_Button::handleMouseMove(const sf::Vector2f &mousePosition) {
     sf::FloatRect btnFieldRect = btnField.getGlobalBounds();
 
     bool isMouseInside = true;
-    sf::Vector2f mousePosition(sf::Mouse::getPosition(*window)); // automatically casted from int to float
 
     if (mousePosition.x < btnFieldRect.left)
         isMouseInside = false;
@@ -69,8 +66,6 @@ void UI_Button::handleMouseMove() {
         isMouseInside = false;
     else if (mousePosition.y > btnFieldRect.top + btnFieldRect.height)
         isMouseInside = false;
-
-
 
     isHovered = isMouseInside;
 }
@@ -122,11 +117,23 @@ void UI_Button::SetOrigin(const sf::Vector2f &origin) {
     btnField.setOrigin(origin);
 }
 
+void UI_Button::SetOrigin(const OriginPosition originPosition) {
+    switch (originPosition) {
+        case OriginPosition::TOP_LEFT:
+            btnField.setOrigin(sf::Vector2f(0, 0));
+            break;
+
+        case OriginPosition::MIDDLE:
+            sf::FloatRect btnRect = this->GetLocalBounds();
+            btnField.setOrigin(sf::Vector2f(btnRect.left + btnRect.width / 2.0f, btnRect.top + btnRect.height / 2.0f));
+            break;
+    }
+}
+
 void UI_Button::SetPosition(const sf::Vector2f &position) {
     btnField.setPosition(position);
     sf::FloatRect btnRect = this->GetGlobalBounds();
     btnText.setPosition(btnRect.left + btnRect.width / 2.0f, btnRect.top + btnRect.height / 2.0f);
 }
-
 
 

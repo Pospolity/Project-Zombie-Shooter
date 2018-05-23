@@ -6,35 +6,31 @@
 #include "MapEditor.h"
 
 
-MapEditor::MapEditor(sf::Window &window) : window(window){
-
+MapEditor::MapEditor(const MainResources & mainResources) : mainResources(mainResources), MainWindow(*(mainResources.window)) {
 }
 
 MapEditor::~MapEditor() {}
 
-void MapEditor::Start() {
-
-    this->isOpen = true;
+void MapEditor::init() {
     std::cout << "Map editor started!" << std::endl;
 
-    /*while(isOpen){
-
-        sf::Event event;
-        while(window.pollEvent(event)){
-            switch(event.type){
-
-                case sf::Event::Closed:
-                    window.close();
-                    break;
-
-                default:
-                    break;
-
-            }
-        }
-    }*/
-
-
+    goBackBtn.SetText("Go back", *(mainResources.defaultFont), 40);
+    goBackBtn.SetSize(sf::Vector2f(250, 150));
+    goBackBtn.SetFillColor(sf::Color::Red);
+    goBackBtn.SetPosition(sf::Vector2f(25, 25));
 }
 
+void MapEditor::update() {
+
+    sf::Vector2f mousePosition(sf::Mouse::getPosition(*(mainResources.window)));
+
+    goBackBtn.Update(mousePosition);
+    if (goBackBtn.IsActive())
+        ShouldExit();
+}
+
+void MapEditor::draw() {
+
+    mainResources.window->draw(goBackBtn);
+}
 

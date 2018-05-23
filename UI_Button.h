@@ -7,15 +7,20 @@
 
 #include <SFML/Graphics.hpp>
 #include <string>
+#include "MainResources.h"
+
+enum class OriginPosition {
+    TOP_LEFT, MIDDLE
+};
 
 class UI_Button : public sf::Drawable {
 
 public:
-    UI_Button(const sf::RenderWindow * window);
-    UI_Button(const sf::RenderWindow * window, const sf::Text& text, const sf::Vector2f& size, bool isActive = false, bool keepActive = false, bool isVisible = true);
+    UI_Button();
+    UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive = false, bool keepActive = false, bool isVisible = true);
     virtual ~UI_Button();
 
-    virtual void Update();
+    virtual void Update(const sf::Vector2f &mousePosition);
 
     bool IsActive();
     void Deactivate();
@@ -24,6 +29,7 @@ public:
     void SetTexture(const sf::Texture * texture, bool resetRect = false);
     void SetText(const char * string, const sf::Font& font, unsigned int characterSize = 30);
     void SetOrigin(const sf::Vector2f &origin);
+    void SetOrigin(const OriginPosition originPosition);
     void SetPosition(const sf::Vector2f &position);
     // sf::Vector2f GetOrigin(); TODO: implement later; this function may be useful
     // sf::Vector2f GetPosition(); TODO: implement later; this function may be useful
@@ -47,8 +53,8 @@ protected:
     }
 
 private:
-    virtual void handleMouse();
-    void handleMouseMove();
+    virtual void handleMouse(const sf::Vector2f &mousePosition);
+    void handleMouseMove(const sf::Vector2f &mousePosition);
 
     sf::Text btnText;
     sf::RectangleShape btnField;
@@ -58,8 +64,6 @@ private:
     bool isPressed = false;
     bool isVisible;
     bool keepActive;
-
-    const sf::RenderWindow * window;
 
 };
 
