@@ -18,6 +18,9 @@
 
 const sf::Color DEFAULT_BTN_PRESSED_FILTER_COLOR(0, 0, 0, 50);
 const int DEFAULT_BTN_FONT_SIZE = 30;
+const float DEFAULT_BTN_HOVERED_TEXT_THICKENING = 1.15;
+
+typedef std::function<void()> buttonTriggerFunction;
 
 void doNothing();
 
@@ -34,8 +37,8 @@ public:
 
     virtual void Update(const sf::Vector2f &mousePosition);
 
-    void OnPressedTriggerFunction(std::function<void()> &function) {this->onPressed = function;};
-    void OnReleasedTriggerFunction(std::function<void()> &function) {this->onReleased = function;};
+    void OnPressedTriggerFunction(buttonTriggerFunction &function) {this->onPressed = function;};
+    void OnReleasedTriggerFunction(buttonTriggerFunction &function) {this->onReleased = function;};
 
     bool IsActive();
     void Deactivate();
@@ -66,10 +69,8 @@ protected:
 
         if(isHovered){
             sf::Text btnTextHovered(btnText);
-            btnTextHovered.setOutlineThickness(1.15);
+            btnTextHovered.setOutlineThickness(DEFAULT_BTN_HOVERED_TEXT_THICKENING);
             btnTextHovered.setOutlineColor(btnTextHovered.getFillColor());
-            //btnTextHovered.setStyle(sf::Text::Underlined);
-            //btnTextHovered.setFillColor(btnTextHovered.getFillColor() - sf::Color(255, 255, 255, 0));
             target.draw(btnTextHovered, states);
         } else
             target.draw(btnText, states);

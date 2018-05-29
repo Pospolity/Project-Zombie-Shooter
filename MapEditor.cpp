@@ -13,8 +13,7 @@ void saySth(const char * textToSay) {
     std::cout << textToSay << std::endl;
 }*/
 
-MapEditor::MapEditor(const MainResources & mainResources) : mainResources(mainResources), MainWindow(*(mainResources.window)) {
-}
+MapEditor::MapEditor(const MainResources & mainResources) : mainResources(mainResources), MainWindow(*(mainResources.window)) {}
 
 MapEditor::~MapEditor() {}
 
@@ -33,8 +32,7 @@ void MapEditor::init() {
     std::function<void()> onReleased3 = std::bind(saySth, "Hello my friend.");
      */
 
-    std::function<void()> onReleased = std::bind(&MapEditor::ShouldExit, this);
-
+    buttonTriggerFunction onReleased = std::bind(&MapEditor::ShouldExit, this);
     goBackBtn.OnReleasedTriggerFunction(onReleased);
 
     // TODO: move to some examples class
