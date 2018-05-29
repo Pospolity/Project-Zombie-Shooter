@@ -5,6 +5,8 @@
 #include "UI_Button.h"
 //#include "iostream"
 
+void doNothing(){};
+
 UI_Button::UI_Button() :
         btnText(),
         btnField(),
@@ -42,11 +44,16 @@ void UI_Button::handleMouse(const sf::Vector2f &mousePosition) {
     handleMouseMove(mousePosition);
 
     if(isHovered) {
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             isPressed = true;
+
+            onPressed();
+        }
         else if (isPressed) { // was pressed, but now isn't
             isActive = true;
             isPressed = false;
+
+            onReleased();
         }
     }
     else
