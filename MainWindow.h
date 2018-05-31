@@ -15,9 +15,11 @@ public:
     virtual ~MainWindow();
     void Start();
     void ShouldExit();
+    bool IsFocused() { return isFocused; };
 
 private:
     bool shouldExit;
+    bool isFocused = true;
     sf::RenderWindow & window;
 
     virtual void init() = 0;

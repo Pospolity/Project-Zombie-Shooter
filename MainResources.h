@@ -10,7 +10,8 @@
 
 struct MainResources {
     sf::RenderWindow * window;
-    sf::Font * defaultFont;
+    sf::Font * defaultFont; // clear and readable font for majority of texts in game
+    sf::Font * specialFont; // more fancy font for e.g. text in buttons, logo
 };
 
 

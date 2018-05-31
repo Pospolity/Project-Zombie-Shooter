@@ -3,7 +3,6 @@
 //
 
 #include <SFML/Graphics.hpp>
-#include "Game.h"
 #include "MainMenu.h"
 #include "UI_Button.h"
 #include "MainResources.h"
@@ -13,14 +12,17 @@
 
 int main() {
 
-    sf::RenderWindow window(sf::VideoMode(1920,1080),"Hello SFML");
+    sf::RenderWindow window(sf::VideoMode(1920,1080),"Zombie Shooter", sf::Style::Titlebar | sf::Style::Close);
+    window.setFramerateLimit(60);
 
-    sf::Font font;
-    font.loadFromFile("assets/fonts/OpenSans-Bold.ttf");
-
+    sf::Font defaultFont;
+    sf::Font specialFont;
+    defaultFont.loadFromFile("assets/fonts/OpenSans-Bold.ttf");
+    specialFont.loadFromFile("assets/fonts/MeltdownMF.ttf");
     MainResources mainResources{
         &window,
-        &font
+        &defaultFont,
+        &specialFont
     };
 
     MainMenu(mainResources).Start();

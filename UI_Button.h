@@ -2,7 +2,7 @@
 // Created on 07/05/2018.
 //
 
-/// INFO:
+// INFO:
 //
 // Buttons remain in state pressed/active until next Update() call.
 // Setting keepActive to true makes button remain in state active until Deactivate() call;
@@ -15,8 +15,8 @@
 #include <string>
 #include "MainResources.h"
 #include <functional>
+#include "colorPalette.h"
 
-const sf::Color DEFAULT_BTN_PRESSED_FILTER_COLOR(0, 0, 0, 50);
 const int DEFAULT_BTN_FONT_SIZE = 30;
 const float DEFAULT_BTN_HOVERED_TEXT_THICKENING = 1.15;
 
@@ -32,7 +32,7 @@ class UI_Button : public sf::Drawable {
 
 public:
     UI_Button();
-    UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive = false, bool keepActive = false, bool isVisible = true);
+    UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive = false, bool keepActive = false, bool isVisible = true, bool isEnabled = true);
     virtual ~UI_Button();
 
     virtual void Update(const sf::Vector2f &mousePosition);
@@ -40,8 +40,12 @@ public:
     void OnPressedTriggerFunction(buttonTriggerFunction &function) {this->onPressed = function;};
     void OnReleasedTriggerFunction(buttonTriggerFunction &function) {this->onReleased = function;};
 
-    bool IsActive();
-    void Deactivate();
+    bool IsActive(){ return isActive; };
+    void Deactivate(){ isActive = false; };
+    void Show() { isVisible = true; };
+    void Hide() { isVisible = false; };
+    void Enable() { isEnabled = true; };
+    void Disable() { isEnabled = false; };
     void SetFillColor(const sf::Color &color);
     void SetSize(const sf::Vector2f &size);
     void SetTexture(const sf::Texture * texture, bool resetRect = false);
@@ -58,23 +62,44 @@ public:
 
 protected:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {
-        target.draw(btnField, states);
-        if(isPressed){
-            sf::RectangleShape pressedFilter(btnField.getSize());
-            pressedFilter.setOrigin(btnField.getOrigin());
-            pressedFilter.setPosition(btnField.getPosition());
-            pressedFilter.setFillColor(DEFAULT_BTN_PRESSED_FILTER_COLOR);
-            target.draw(pressedFilter, states);
-        }
 
-        if(isHovered){
-            sf::Text btnTextHovered(btnText);
-            btnTextHovered.setOutlineThickness(DEFAULT_BTN_HOVERED_TEXT_THICKENING);
-            btnTextHovered.setOutlineColor(btnTextHovered.getFillColor());
-            target.draw(btnTextHovered, states);
-        } else
+        if (!isVisible)
+            return;
+
+        target.draw(btnField, states);
+
+        if(isEnabled){
+
+            if(isPressed){
+                sf::RectangleShape pressedFilter(btnField.getSize());
+                pressedFilter.setOrigin(btnField.getOrigin());
+                pressedFilter.setPosition(btnField.getPosition());
+                pressedFilter.setFillColor(DEFAULT_BTN_PRESSED_FILTER_COLOR);
+                target.draw(pressedFilter, states);
+            }
+
+            if(isHovered){
+                sf::Text btnTextHovered(btnText);
+                btnTextHovered.setOutlineThickness(DEFAULT_BTN_HOVERED_TEXT_THICKENING);
+                btnTextHovered.setOutlineColor(btnTextHovered.getFillColor());
+                target.draw(btnTextHovered, states);
+            } else
+                target.draw(btnText, states);
+
+        } else {
+
+            sf::RectangleShape disabledFilter(btnField.getSize());
+            disabledFilter.setOrigin(btnField.getOrigin());
+            disabledFilter.setPosition(btnField.getPosition());
+            disabledFilter.setFillColor(DEFAULT_BTN_DISABLED_FILTER_COLOR);
+            disabledFilter.setTexture(btnField.getTexture());
+            target.draw(disabledFilter);
+
             target.draw(btnText, states);
+        }
     }
+
+    void applyDefaultStyle();
 
 private:
     virtual void handleMouse(const sf::Vector2f &mousePosition);
@@ -87,6 +112,7 @@ private:
     bool isHovered = false;
     bool isPressed = false;
     bool isVisible;
+    bool isEnabled;
     bool keepActive;
 
     // functions triggered on events

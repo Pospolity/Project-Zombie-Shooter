@@ -9,6 +9,8 @@
 #include "GameResources.h"
 #include "UI_Button.h"
 
+const int NUMBER_OF_BUTTON_TEXTURES = 2;
+
 enum buttonsOptions {
     GAME, MAP_EDITOR, NUMBER_OF_BUTTONS
 };
@@ -26,6 +28,8 @@ private:
     const MainResources & mainResources;
     UI_Button buttons[NUMBER_OF_BUTTONS];
     sf::Text infoText;
+
+    sf::Texture mainButtonTextures[NUMBER_OF_BUTTON_TEXTURES];
 };
 
 

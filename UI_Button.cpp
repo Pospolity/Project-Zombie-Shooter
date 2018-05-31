@@ -4,6 +4,7 @@
 
 #include "UI_Button.h"
 //#include "iostream"
+#include "colorPalette.h"
 
 void doNothing(){};
 
@@ -12,15 +13,21 @@ UI_Button::UI_Button() :
         btnField(),
         isActive(false),
         keepActive(false),
-        isVisible(true)
-{}
+        isVisible(true),
+        isEnabled(true)
+{
+    applyDefaultStyle();
+}
 
-UI_Button::UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive, bool keepActive, bool isVisible) :
+UI_Button::UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActive, bool keepActive, bool isVisible, bool isEnabled) :
         btnText(text),
         btnField(sf::RectangleShape(size)),
         isActive(isActive),
         keepActive(keepActive),
-        isVisible(isVisible) {
+        isVisible(isVisible),
+        isEnabled(isEnabled)
+{
+    applyDefaultStyle();
 
     // set text origin to center of the text and set position to the center of the button
     sf::FloatRect btnTextRect = btnText.getLocalBounds();
@@ -36,7 +43,8 @@ void UI_Button::Update(const sf::Vector2f &mousePosition) {
     if(!keepActive && isActive) // deactivate after draw/action if keepActive not set
         Deactivate();
 
-    handleMouse(mousePosition);
+    if(isEnabled && isVisible)
+        handleMouse(mousePosition);
 }
 
 void UI_Button::handleMouse(const sf::Vector2f &mousePosition) {
@@ -77,12 +85,9 @@ void UI_Button::handleMouseMove(const sf::Vector2f &mousePosition) {
     isHovered = isMouseInside;
 }
 
-bool UI_Button::IsActive() {
-    return isActive;
-}
-
-void UI_Button::Deactivate() {
-    isActive = false;
+void UI_Button::applyDefaultStyle() {
+    btnText.setFillColor(DEFAULT_BTN_TEXT_FILL_COLOR);
+    btnField.setFillColor(DEFAULT_BTN_FILL_COLOR);
 }
 
 void UI_Button::SetFillColor(const sf::Color &color) {
@@ -101,6 +106,7 @@ void UI_Button::SetText(const char *string, const sf::Font &font, unsigned int c
     btnText.setString(string);
     btnText.setFont(font);
     btnText.setCharacterSize(characterSize);
+
     // update text origin and position
     sf::FloatRect btnTextRect = btnText.getLocalBounds();
     btnText.setOrigin(btnTextRect.left + btnTextRect.width / 2.0f, btnTextRect.top + btnTextRect.height / 2.0f);
@@ -142,5 +148,9 @@ void UI_Button::SetPosition(const sf::Vector2f &position) {
     sf::FloatRect btnRect = this->GetGlobalBounds();
     btnText.setPosition(btnRect.left + btnRect.width / 2.0f, btnRect.top + btnRect.height / 2.0f);
 }
+
+
+
+
 
 

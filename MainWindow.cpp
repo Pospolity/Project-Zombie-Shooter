@@ -4,6 +4,7 @@
 
 #include "MainWindow.h"
 #include "MainResources.h"
+#include "colorPalette.h"
 
 MainWindow::MainWindow(sf::RenderWindow & window) : window(window) {}
 
@@ -24,6 +25,14 @@ void MainWindow::Start() {
                     window.close();
                     break;
 
+                case sf::Event::LostFocus:
+                    isFocused = false;
+                    break;
+
+                case sf::Event::GainedFocus:
+                    isFocused = true;
+                    break;
+
                 default:
                     break;
             }
@@ -31,7 +40,7 @@ void MainWindow::Start() {
 
         update();
 
-        window.clear(sf::Color::Black);
+        window.clear(DEFAULT_BACKGROUND_COLOR);
 
         draw();
 

@@ -18,7 +18,6 @@ MapEditor::MapEditor(const MainResources & mainResources) : mainResources(mainRe
 MapEditor::~MapEditor() {}
 
 void MapEditor::init() {
-    std::cout << "Map editor started!" << std::endl;
 
     goBackBtn.SetText("Go back", *(mainResources.defaultFont), 40);
     goBackBtn.SetSize(sf::Vector2f(250, 150));
@@ -45,7 +44,8 @@ void MapEditor::update() {
 
     sf::Vector2f mousePosition(sf::Mouse::getPosition(*(mainResources.window)));
 
-    goBackBtn.Update(mousePosition);
+    if (this->IsFocused())
+        goBackBtn.Update(mousePosition);
 }
 
 void MapEditor::draw() {
