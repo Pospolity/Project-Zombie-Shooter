@@ -70,17 +70,7 @@ void UI_Button::handleMouse(const sf::Vector2f &mousePosition) {
 
 void UI_Button::handleMouseMove(const sf::Vector2f &mousePosition) {
     sf::FloatRect btnFieldRect = btnField.getGlobalBounds();
-
-    bool isMouseInside = true;
-
-    if (mousePosition.x < btnFieldRect.left)
-        isMouseInside = false;
-    else if (mousePosition.x > btnFieldRect.left + btnFieldRect.width)
-        isMouseInside = false;
-    else if (mousePosition.y < btnFieldRect.top)
-        isMouseInside = false;
-    else if (mousePosition.y > btnFieldRect.top + btnFieldRect.height)
-        isMouseInside = false;
+    bool isMouseInside = btnFieldRect.contains(mousePosition);
 
     isHovered = isMouseInside;
 }

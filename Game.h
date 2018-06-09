@@ -9,6 +9,8 @@
 #include "MainWindow.h"
 #include "UI_Button.h"
 #include "MainResources.h"
+#include "Background.h"
+#include "Protagonist.h"
 
 
 
@@ -34,6 +36,11 @@ private:
     void update() override;
     void draw() override;
 
+    void calculateFPS(const sf::Time &timeSinceLastUpdate);
+    void updateCameraPosition(const sf::Vector2f &mousePosition);
+    bool intersects(const sf::CircleShape &circle, const sf::Vector2f &point);
+    float getAngleInRadians(const sf::Vector2f &center, const sf::Vector2f &point);
+
     const MainResources & mainResources;
     UI_Button pauseButtons[PauseButtonsOptions::NUMBER_OF_BUTTONS];
     sf::Texture pauseButtonTextures[Game::NUMBER_OF_BUTTON_TEXTURES];
@@ -41,6 +48,18 @@ private:
     sf::Texture zombiesImageTexture;
     sf::Text infoText;
     GameStates gameState;
+    Background background;
+    Protagonist protagonist;
+    sf::Clock updateTimer;
+    sf::Text FPSCounter;
+    sf::View cameraView;
+    sf::View fixedView;
+    sf::CircleShape windowCenter;
+    sf::CircleShape areaOfCameraMovement;
+    sf::Sprite crosshair; // TODO: create a separate class for crosshair
+    sf::Texture crosshairTexture;
+
+    bool debugging = false;
 };
 
 #endif //PROJECT_ZOMBIE_SHOOTER_GAME_H

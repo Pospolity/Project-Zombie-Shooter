@@ -5,12 +5,16 @@
 #include <iostream>
 #include "Game.h"
 #include <sstream>
+#include <math.h>
 
 const float BTN_MARGIN_HORIZONTAL= 300.0;
 const float BTN_MARGIN_DOWN = 35.0;
 const int BTN_FONT_SIZE = 64;
 const int PAUSE_TEXT_FONT_SIZE = 96;
 const sf::Vector2f ZOMBIES_IMAGE_SIZE(900, 450);
+const float AREA_OF_PROTAGONIST_FOV = 400;
+
+const float PI = 3.14159265f;
 
 Game::Game(const MainResources & mainResources) : mainResources(mainResources), MainWindow(*(mainResources.window)) {}
 
@@ -38,12 +42,16 @@ void Game::init() {
     // SET PAUSE BUTTON'S FUNCTIONS
     buttonTriggerFunction buttonTriggerFunctions[PauseButtonsOptions::NUMBER_OF_BUTTONS] {};
 
-    buttonTriggerFunctions[PauseButtonsOptions::CONTINUE] = [&](){ gameState = RUNNING; };
+    buttonTriggerFunctions[PauseButtonsOptions::CONTINUE] = [&](){
+        gameState = RUNNING;
+        mainResources.window->setMouseCursorVisible(false);
+    };
     buttonTriggerFunctions[PauseButtonsOptions::NEW_GAME] = [&](){
         gameState = RUNNING;
         pauseButtons[PauseButtonsOptions::NEW_GAME].Disable();
         pauseButtons[PauseButtonsOptions::CONTINUE].Show();
         pauseButtons[PauseButtonsOptions::SAVE_GAME].Show();
+        mainResources.window->setMouseCursorVisible(false);
     };
     buttonTriggerFunctions[PauseButtonsOptions::EXIT] = [&](){ gameState = FINISHED; };
 
@@ -80,7 +88,6 @@ void Game::init() {
 
 
     // HIDE BUTTONS NOT AVAILABLE IN INITIAL MENU
-    gameState = INITIAL_MENU;
     pauseButtons[PauseButtonsOptions::CONTINUE].Hide();
     pauseButtons[PauseButtonsOptions::SAVE_GAME].Hide();
 
@@ -96,28 +103,94 @@ void Game::init() {
         zombiesImage.setTexture(&zombiesImageTexture);
     }
 
+    // SET PROTAGONIST INITIAL POSITION
+    protagonist.SetPosition(mainResources.window->getDefaultView().getCenter()); // TODO: load it from settings in save or in map
+
+    // SET FPS COUNTER
+    FPSCounter = sf::Text("", *mainResources.defaultFont, 64);
+    FPSCounter.setFillColor(DEFAULT_TEXT_ON_BACKGROUND_COLOR);
+
+    // SET INITIAL GAME STATE
+    gameState = INITIAL_MENU;
+
+    // START TIMER
+    updateTimer.restart();
+
+    // SET VIEWS
+    cameraView = fixedView = mainResources.window->getDefaultView();
+    cameraView.zoom(0.90f);
+
+    // SET WINDOW CENTER
+    windowCenter = sf::CircleShape(10);
+
+    windowCenter.setOrigin((windowCenter.getLocalBounds().left + windowCenter.getLocalBounds().width) / 2.0f, (windowCenter.getLocalBounds().top + windowCenter.getLocalBounds().height) / 2.0f); // set origin to the middle
+    windowCenter.setPosition( mainResources.window->getDefaultView().getCenter() );
+    windowCenter.setFillColor(sf::Color::Red);
+
+    // SET AREA OF CAMERA MOVEMENT
+    areaOfCameraMovement = sf::CircleShape(AREA_OF_PROTAGONIST_FOV);
+    areaOfCameraMovement.setFillColor(sf::Color::Transparent);
+    areaOfCameraMovement.setOutlineColor(sf::Color::Blue);
+    areaOfCameraMovement.setOutlineThickness(5.0f);
+    areaOfCameraMovement.setOrigin(areaOfCameraMovement.getLocalBounds().width / 2.0f, areaOfCameraMovement.getLocalBounds().height / 2.0f); // set origin to the middle
+    areaOfCameraMovement.setPosition( cameraView.getCenter().x, cameraView.getCenter().y );
+
+    // LOAD AND SET CROSSHAIR TEXTURE
+    if (!crosshairTexture.loadFromFile("assets/graphics/crosshair.png"))
+        std::cout << "texture of crosshair not loaded :( ";
+    else {
+        crosshair.setTexture(crosshairTexture);
+        crosshair.setOrigin(crosshair.getLocalBounds().width / 2.0f, crosshair.getLocalBounds().height / 2.0f);
+    }
+
+    /////////////// DEBUG ONLY TODO: delete after debugging
+
+    gameState = RUNNING;
+    pauseButtons[PauseButtonsOptions::NEW_GAME].Disable();
+    pauseButtons[PauseButtonsOptions::CONTINUE].Show();
+    pauseButtons[PauseButtonsOptions::SAVE_GAME].Show();
+    mainResources.window->setMouseCursorVisible(false);
+    debugging = false;
+
+    ///////////////
+
+
 }
 
 void Game::update() {
 
-    sf::Vector2f mousePosition(sf::Mouse::getPosition(*(mainResources.window)));
+    sf::Time timeSinceLastUpdate = updateTimer.getElapsedTime();
+    updateTimer.restart();
+
+    sf::Vector2i realMousePosition(sf::Mouse::getPosition(*(mainResources.window))); // mouse position relative to game window
+    sf::Vector2f mousePositionInFixedView = mainResources.window->mapPixelToCoords(realMousePosition, fixedView);
+    sf::Vector2f mousePositionInGameWorld = mainResources.window->mapPixelToCoords(realMousePosition, cameraView); // mouse position translated to position in game coordinates in camera view
 
     if (this->IsFocused()) {
 
         if (gameState == PAUSED || gameState == INITIAL_MENU) {
             for (int i = 0; i < PauseButtonsOptions::NUMBER_OF_BUTTONS; i++) {
-                pauseButtons[i].Update(mousePosition);
+                pauseButtons[i].Update(mousePositionInFixedView);
             }
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
-            if (gameState == RUNNING)
+        if (gameState == RUNNING) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
                 gameState = PAUSED;
+                mainResources.window->setMouseCursorVisible(true);
+            }
+
+            protagonist.Update(mousePositionInGameWorld, timeSinceLastUpdate);
+            areaOfCameraMovement.setPosition(protagonist.GetPosition().x, protagonist.GetPosition().y);
+            updateCameraPosition(mousePositionInGameWorld);
+            crosshair.setPosition(mousePositionInFixedView);
         }
 
         if (gameState == FINISHED)
             ShouldExit();
     }
+
+    calculateFPS(timeSinceLastUpdate);
 }
 
 void Game::draw() {
@@ -133,4 +206,99 @@ void Game::draw() {
         for (int i = 0; i < PauseButtonsOptions::NUMBER_OF_BUTTONS; i++)
             mainResources.window->draw(pauseButtons[i]);
     }
+
+    if (gameState == RUNNING){
+
+        sf::Vector2f worldSize = background.GetSize();
+        sf::Vector2u windowSize = mainResources.window->getSize();
+
+        // DRAW ELEMENTS FROM CAMERA VIEW
+        mainResources.window->setView(cameraView);
+
+        // DRAW BACKGROUND
+        mainResources.window->draw(background);
+
+        // DRAW PROTAGONIST
+        mainResources.window->draw(protagonist);
+
+        if (debugging) {
+
+            // DRAW CENTER OF PROTAGONIST SPRITE
+            sf::CircleShape protagonistCenter(10);
+            protagonistCenter.setOrigin(protagonistCenter.getLocalBounds().width/2.0f, protagonistCenter.getLocalBounds().height/2.0f);
+            protagonistCenter.setPosition(protagonist.GetPosition());
+            mainResources.window->draw(protagonistCenter);
+
+            // DRAW AREA OF CAMERA STABILITY
+            mainResources.window->draw(areaOfCameraMovement);
+        }
+
+        // DRAW FIXED ELEMENTS
+        mainResources.window->setView(fixedView);
+
+        if (debugging) {
+
+            // DRAW CIRCLE SIGNING DEFAULT/FIXED VIEW CENTER / CAMERA
+            mainResources.window->draw(windowCenter);
+        }
+
+        // DRAW FPS COUNTER
+        mainResources.window->draw(FPSCounter);
+
+        // DRAW CROSSHAIR
+        mainResources.window->draw(crosshair);
+    }
+}
+
+void Game::calculateFPS(const sf::Time &timeSinceLastUpdate) {
+    float FPS = 1.0f / timeSinceLastUpdate.asSeconds();
+    std::ostringstream FPSCounterText;
+    FPSCounterText << floor(FPS + 0.5); // round FPS. This solution is OK here because FPS will never be negative number
+    FPSCounter.setString(FPSCounterText.str());
+}
+
+void Game::updateCameraPosition(const sf::Vector2f &mousePosition) {
+
+        sf::Vector2f mouseFromProtagonistDistance;
+
+        mouseFromProtagonistDistance.x = protagonist.GetPosition().x - mousePosition.x;
+        mouseFromProtagonistDistance.y = protagonist.GetPosition().y - mousePosition.y;
+
+        sf::Vector2f newCameraPosition;
+
+        newCameraPosition.x = protagonist.GetPosition().x - mouseFromProtagonistDistance.x * 0.5f;
+        newCameraPosition.y = protagonist.GetPosition().y - mouseFromProtagonistDistance.y * 0.5f;
+
+        if (!intersects(areaOfCameraMovement, newCameraPosition)) {
+
+            float angle = getAngleInRadians(protagonist.GetPosition(), mousePosition);
+
+            newCameraPosition.x = protagonist.GetPosition().x - areaOfCameraMovement.getRadius() * cos(angle);
+            newCameraPosition.y = protagonist.GetPosition().y - areaOfCameraMovement.getRadius() * sin(angle);
+        }
+
+    cameraView.setCenter(newCameraPosition.x, newCameraPosition.y);
+}
+
+bool Game::intersects(const sf::CircleShape &circle, const sf::Vector2f &point)
+{
+    sf::Vector2f circleDistance;
+    circleDistance.x = abs(circle.getPosition().x - point.x);
+    circleDistance.y = abs(circle.getPosition().y - point.y);
+
+    if (circleDistance.x >  circle.getRadius()) { return false; }
+    if (circleDistance.y >  circle.getRadius()) { return false; }
+
+    if (circleDistance.x <= 1) { return true; }
+    if (circleDistance.y <= 1) { return true; }
+
+    float cornerDistance_sq = pow(circleDistance.x, 2) + pow(circleDistance.y, 2);
+
+    return (cornerDistance_sq <= pow(circle.getRadius(), 2));
+}
+
+float Game::getAngleInRadians(const sf::Vector2f &center, const sf::Vector2f &point){
+
+    sf::Vector2f diff = center - point;
+    return atan2f(diff.y, diff.x);
 }

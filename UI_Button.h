@@ -70,12 +70,12 @@ protected:
 
         if(isEnabled){
 
-            if(isPressed){
-                sf::RectangleShape pressedFilter(btnField.getSize());
-                pressedFilter.setOrigin(btnField.getOrigin());
-                pressedFilter.setPosition(btnField.getPosition());
-                pressedFilter.setFillColor(DEFAULT_BTN_PRESSED_FILTER_COLOR);
-                target.draw(pressedFilter, states);
+            if(isPressed || isActive){
+                sf::RectangleShape pressedOrActiveFilter(btnField.getSize());
+                pressedOrActiveFilter.setOrigin(btnField.getOrigin());
+                pressedOrActiveFilter.setPosition(btnField.getPosition());
+                pressedOrActiveFilter.setFillColor(DEFAULT_BTN_PRESSED_OR_ACTIVE_FILTER_COLOR);
+                target.draw(pressedOrActiveFilter, states);
             }
 
             if(isHovered){

@@ -13,7 +13,8 @@
 int main() {
 
     sf::RenderWindow window(sf::VideoMode(1920,1080),"Zombie Shooter", sf::Style::Titlebar | sf::Style::Close);
-    window.setFramerateLimit(60);
+    //window.setFramerateLimit(60);
+    window.setVerticalSyncEnabled(true);
 
     sf::Font defaultFont;
     sf::Font specialFont;

@@ -69,6 +69,10 @@ void MainMenu::init() {
 
 void MainMenu::update() {
 
+    /////////////// DEBUG ONLY TODO: delete after debugging
+    Game(mainResources).Start();
+    ///////////////
+
     sf::Vector2f mousePosition(sf::Mouse::getPosition(*mainResources.window));
 
     if (this->IsFocused()){
@@ -83,4 +87,5 @@ void MainMenu::draw() {
     mainResources.window->draw(infoText);
     for (int i = 0; i < NUMBER_OF_BUTTONS; i++)
         mainResources.window->draw(buttons[i]);
+
 }
