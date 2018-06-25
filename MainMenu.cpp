@@ -24,11 +24,39 @@ void MainMenu::init() {
     const float windowSectionHeight = float(mainResources.window->getSize().y) / (NUMBER_OF_BUTTONS + 1);
     const float windowSectionWidth = float(mainResources.window->getSize().x);
 
+    setInfoText(windowSectionHeight, windowSectionWidth);
+
+    setButtons(windowSectionHeight, windowSectionWidth);
+}
+
+void MainMenu::update() {
+
+    sf::Vector2f mousePosition(sf::Mouse::getPosition(*mainResources.window));
+
+    if (this->IsFocused()){
+        for (int i = 0; i < NUMBER_OF_BUTTONS; i++) {
+            buttons[i].Update(mousePosition);
+        }
+    }
+}
+
+void MainMenu::draw() {
+
+    mainResources.window->draw(infoText);
+    for (int i = 0; i < NUMBER_OF_BUTTONS; i++)
+        mainResources.window->draw(buttons[i]);
+
+}
+
+void MainMenu::setInfoText(float windowSectionHeight, float windowSectionWidth) {
     infoText = sf::Text("Zombie shooter!!!",*mainResources.specialFont, LOGO_TEXT_SIZE);
     sf::FloatRect textRect = infoText.getLocalBounds();
     infoText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
     infoText.setPosition(windowSectionWidth / 2.0f, windowSectionHeight / 2.0f);
     infoText.setFillColor(DEFAULT_TEXT_ON_BACKGROUND_COLOR);
+}
+
+void MainMenu::setButtons(float windowSectionHeight, float windowSectionWidth) {
 
     // SET BUTTON'S TEXTS
     std::string buttonTexts[NUMBER_OF_BUTTONS];
@@ -63,29 +91,4 @@ void MainMenu::init() {
         else
             buttons[i].SetTexture(&mainButtonTextures[i]);
     }
-
-
-}
-
-void MainMenu::update() {
-
-    /////////////// DEBUG ONLY TODO: delete after debugging
-    Game(mainResources).Start();
-    ///////////////
-
-    sf::Vector2f mousePosition(sf::Mouse::getPosition(*mainResources.window));
-
-    if (this->IsFocused()){
-        for (int i = 0; i < NUMBER_OF_BUTTONS; i++) {
-            buttons[i].Update(mousePosition);
-        }
-    }
-}
-
-void MainMenu::draw() {
-
-    mainResources.window->draw(infoText);
-    for (int i = 0; i < NUMBER_OF_BUTTONS; i++)
-        mainResources.window->draw(buttons[i]);
-
 }

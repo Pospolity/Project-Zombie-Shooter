@@ -47,18 +47,25 @@ public:
     void Enable() { isEnabled = true; };
     void Disable() { isEnabled = false; };
     void SetFillColor(const sf::Color &color);
+    void SetOutlineColor(const sf::Color &color);
+    void SetOutlineThickness(float thickness);
     void SetSize(const sf::Vector2f &size);
     void SetTexture(const sf::Texture * texture, bool resetRect = false);
+    void SetTextureRect(const sf::IntRect& rect);
     void SetText(const char * string, const sf::Font& font, unsigned int characterSize = DEFAULT_BTN_FONT_SIZE);
     void SetOrigin(const sf::Vector2f &origin);
     void SetOrigin(const OriginPosition originPosition);
     void SetPosition(const sf::Vector2f &position);
+    void SetRotation(float angle);
     // sf::Vector2f GetOrigin(); TODO: implement later; this function may be useful
     // sf::Vector2f GetPosition(); TODO: implement later; this function may be useful
     // void Move(float offsetX, float offsetY); TODO: implement later; this function may be useful
     // void Move(const sf::Vector2f &offset); TODO: implement later; this function may be useful
     sf::FloatRect GetLocalBounds();
     sf::FloatRect GetGlobalBounds();
+    sf::Color GetFillColor();
+    sf::Vector2f GetSize();
+    float GetRotation();
 
 protected:
     virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const {

@@ -30,6 +30,10 @@ private:
     sf::Text infoText;
 
     sf::Texture mainButtonTextures[NUMBER_OF_BUTTON_TEXTURES];
+
+    void setInfoText(float windowSectionHeight, float windowSectionWidth);
+    void setButtons(float windowSectionHeight, float windowSectionWidth);
+
 };
 
 

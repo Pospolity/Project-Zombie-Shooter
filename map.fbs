@@ -1,0 +1,61 @@
+namespace tileMap;
+
+struct Vec2f {
+  x:float;
+  y:float;
+}
+
+struct Vec2i {
+  x:int;
+  y:int;
+}
+
+table CollidingTile {
+  // -1 means that collision isn't set on tile of any layer in that place
+  layerId:int8 = -1;
+}
+
+table Tile {
+  // -1 here specifies that no texture is set on the tile in that place
+  textureId:int16 = -1;
+  rotation:float=0;
+}
+
+table Map {
+  // id of map [unique]
+  id:int8;
+
+  // name of map
+  name:string;
+
+  // path and filename of image with tiles
+  tileSheetPath:string;
+
+  // dimensions of tilesheet; in tiles
+  tileSheetDimensions:Vec2i;
+
+  // dimensions of single tile; in pixels
+  tileDimensions:Vec2i;
+
+  // dimensions of every layer of map; in tiles
+  mapDimensions:Vec2i;
+
+  // number of layers to load // TODO: check if this is really necessary
+  numberOfLayers:int;
+
+  //
+  layers:[Layer];
+
+  //
+  collisionLayer:[CollidingTile];
+}
+
+table Layer {
+  tiles:[Tile];
+}
+
+table MapList {
+  maps:[Map];
+}
+
+root_type MapList;

@@ -12,7 +12,8 @@ const float BTN_MARGIN_DOWN = 35.0;
 const int BTN_FONT_SIZE = 64;
 const int PAUSE_TEXT_FONT_SIZE = 96;
 const sf::Vector2f ZOMBIES_IMAGE_SIZE(900, 450);
-const float AREA_OF_PROTAGONIST_FOV = 400;
+const float AREA_OF_PROTAGONIST_FOV = 400.0f;
+
 
 const float PI = 3.14159265f;
 
@@ -104,7 +105,7 @@ void Game::init() {
     }
 
     // SET PROTAGONIST INITIAL POSITION
-    protagonist.SetPosition(mainResources.window->getDefaultView().getCenter()); // TODO: load it from settings in save or in map
+    gameResources.getProtagonist().SetPosition(mainResources.window->getDefaultView().getCenter() / 2.0f); // TODO: load it from settings in save or in map
 
     // SET FPS COUNTER
     FPSCounter = sf::Text("", *mainResources.defaultFont, 64);
@@ -143,18 +144,6 @@ void Game::init() {
         crosshair.setOrigin(crosshair.getLocalBounds().width / 2.0f, crosshair.getLocalBounds().height / 2.0f);
     }
 
-    /////////////// DEBUG ONLY TODO: delete after debugging
-
-    gameState = RUNNING;
-    pauseButtons[PauseButtonsOptions::NEW_GAME].Disable();
-    pauseButtons[PauseButtonsOptions::CONTINUE].Show();
-    pauseButtons[PauseButtonsOptions::SAVE_GAME].Show();
-    mainResources.window->setMouseCursorVisible(false);
-    debugging = false;
-
-    ///////////////
-
-
 }
 
 void Game::update() {
@@ -180,14 +169,32 @@ void Game::update() {
                 mainResources.window->setMouseCursorVisible(true);
             }
 
-            protagonist.Update(mousePositionInGameWorld, timeSinceLastUpdate);
-            areaOfCameraMovement.setPosition(protagonist.GetPosition().x, protagonist.GetPosition().y);
+            gameResources.getProtagonist().Update(mousePositionInGameWorld, timeSinceLastUpdate);
+            gameResources.getProtagonist().HandleCollisionWithBackground(gameResources.getBackground());
+            areaOfCameraMovement.setPosition(gameResources.getProtagonist().GetPosition().x, gameResources.getProtagonist().GetPosition().y);
             updateCameraPosition(mousePositionInGameWorld);
             crosshair.setPosition(mousePositionInFixedView);
+
+            for (auto &zombie : gameResources.getZombies()){
+                zombie.Update(gameResources.getProtagonist(), timeSinceLastUpdate);
+                zombie.HandleCollisionWithBackground(gameResources.getBackground());
+            }
+
+            gameResources.SpawnZombieIfTimeHasCome(timeSinceLastUpdate, gameResources.getProtagonist().GetPosition(), gameResources.getBackground().GetSize());
+            if (gameResources.getProtagonist().IsDead()){
+                gameState = DEAD;
+            }
         }
 
         if (gameState == FINISHED)
             ShouldExit();
+
+        if (gameState == DEAD){
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) {
+                gameState = INITIAL_MENU;
+                mainResources.window->setMouseCursorVisible(true);
+            }
+        }
     }
 
     calculateFPS(timeSinceLastUpdate);
@@ -209,24 +216,28 @@ void Game::draw() {
 
     if (gameState == RUNNING){
 
-        sf::Vector2f worldSize = background.GetSize();
+        sf::Vector2i worldSize = gameResources.getBackground().GetSize();
         sf::Vector2u windowSize = mainResources.window->getSize();
 
         // DRAW ELEMENTS FROM CAMERA VIEW
         mainResources.window->setView(cameraView);
 
         // DRAW BACKGROUND
-        mainResources.window->draw(background);
+        mainResources.window->draw(gameResources.getBackground());
 
         // DRAW PROTAGONIST
-        mainResources.window->draw(protagonist);
+        mainResources.window->draw(gameResources.getProtagonist());
+
+        // DRAW ZOMBIES
+        for (auto &zombie : gameResources.getZombies())
+            mainResources.window->draw(zombie);
 
         if (debugging) {
 
             // DRAW CENTER OF PROTAGONIST SPRITE
             sf::CircleShape protagonistCenter(10);
             protagonistCenter.setOrigin(protagonistCenter.getLocalBounds().width/2.0f, protagonistCenter.getLocalBounds().height/2.0f);
-            protagonistCenter.setPosition(protagonist.GetPosition());
+            protagonistCenter.setPosition(gameResources.getProtagonist().GetPosition());
             mainResources.window->draw(protagonistCenter);
 
             // DRAW AREA OF CAMERA STABILITY
@@ -245,8 +256,23 @@ void Game::draw() {
         // DRAW FPS COUNTER
         mainResources.window->draw(FPSCounter);
 
+        // DRAW BLOOD
+        sf::RectangleShape blood(fixedView.getSize());
+        blood.setFillColor(sf::Color(255, 0, 0, ((float)(gameResources.getProtagonist().GetMaxHP() - gameResources.getProtagonist().GetHP()) / (float)(gameResources.getProtagonist().GetMaxHP())) * 255.0f ));
+        mainResources.window->draw(blood);
+
         // DRAW CROSSHAIR
         mainResources.window->draw(crosshair);
+    }
+
+    if (gameState == DEAD){
+        sf::Text lastMessage("YOU ARE DEAD!", *mainResources.specialFont, 200);
+        lastMessage.setOrigin((lastMessage.getLocalBounds().left + lastMessage.getLocalBounds().width)/ 2.0f, (lastMessage.getLocalBounds().top + lastMessage.getLocalBounds().height)/ 2.0f);
+        lastMessage.setPosition(fixedView.getCenter());
+        lastMessage.setFillColor(sf::Color::Red);
+        lastMessage.setOutlineColor(sf::Color::Black);
+        lastMessage.setOutlineThickness(20);
+        mainResources.window->draw(lastMessage);
     }
 }
 
@@ -261,20 +287,20 @@ void Game::updateCameraPosition(const sf::Vector2f &mousePosition) {
 
         sf::Vector2f mouseFromProtagonistDistance;
 
-        mouseFromProtagonistDistance.x = protagonist.GetPosition().x - mousePosition.x;
-        mouseFromProtagonistDistance.y = protagonist.GetPosition().y - mousePosition.y;
+        mouseFromProtagonistDistance.x = gameResources.getProtagonist().GetPosition().x - mousePosition.x;
+        mouseFromProtagonistDistance.y = gameResources.getProtagonist().GetPosition().y - mousePosition.y;
 
         sf::Vector2f newCameraPosition;
 
-        newCameraPosition.x = protagonist.GetPosition().x - mouseFromProtagonistDistance.x * 0.5f;
-        newCameraPosition.y = protagonist.GetPosition().y - mouseFromProtagonistDistance.y * 0.5f;
+        newCameraPosition.x = gameResources.getProtagonist().GetPosition().x - mouseFromProtagonistDistance.x * 0.5f;
+        newCameraPosition.y = gameResources.getProtagonist().GetPosition().y - mouseFromProtagonistDistance.y * 0.5f;
 
         if (!intersects(areaOfCameraMovement, newCameraPosition)) {
 
-            float angle = getAngleInRadians(protagonist.GetPosition(), mousePosition);
+            float angle = getAngleInRadians(gameResources.getProtagonist().GetPosition(), mousePosition);
 
-            newCameraPosition.x = protagonist.GetPosition().x - areaOfCameraMovement.getRadius() * cos(angle);
-            newCameraPosition.y = protagonist.GetPosition().y - areaOfCameraMovement.getRadius() * sin(angle);
+            newCameraPosition.x = gameResources.getProtagonist().GetPosition().x - areaOfCameraMovement.getRadius() * cos(angle);
+            newCameraPosition.y = gameResources.getProtagonist().GetPosition().y - areaOfCameraMovement.getRadius() * sin(angle);
         }
 
     cameraView.setCenter(newCameraPosition.x, newCameraPosition.y);

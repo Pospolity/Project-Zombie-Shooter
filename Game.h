@@ -11,7 +11,7 @@
 #include "MainResources.h"
 #include "Background.h"
 #include "Protagonist.h"
-
+#include "GameResources.h"
 
 
 class Game : public MainWindow {
@@ -23,7 +23,7 @@ private:
     static const int NUMBER_OF_BUTTON_TEXTURES = 6;
 
     enum GameStates {
-        INITIAL_MENU, RUNNING, PAUSED, FINISHED
+        INITIAL_MENU, RUNNING, PAUSED, FINISHED, DEAD
     };
 
     struct PauseButtonsOptions { // way to have enumerators which don't need to be unique in whole class, but still implicitly convertible to int
@@ -48,14 +48,14 @@ private:
     sf::Texture zombiesImageTexture;
     sf::Text infoText;
     GameStates gameState;
-    Background background;
-    Protagonist protagonist;
+    GameResources gameResources;
     sf::Clock updateTimer;
     sf::Text FPSCounter;
     sf::View cameraView;
     sf::View fixedView;
     sf::CircleShape windowCenter;
     sf::CircleShape areaOfCameraMovement;
+    sf::CircleShape areaOfZombieNotSpawn;
     sf::Sprite crosshair; // TODO: create a separate class for crosshair
     sf::Texture crosshairTexture;
 

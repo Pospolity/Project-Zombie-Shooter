@@ -36,6 +36,8 @@ UI_Button::UI_Button(const sf::Text& text, const sf::Vector2f& size, bool isActi
     btnText.setPosition(btnFieldRect.left + btnFieldRect.width / 2.0f, btnFieldRect.top + btnFieldRect.height / 2.0f);
 }
 
+
+
 UI_Button::~UI_Button() {}
 
 void UI_Button::Update(const sf::Vector2f &mousePosition) {
@@ -82,6 +84,14 @@ void UI_Button::applyDefaultStyle() {
 
 void UI_Button::SetFillColor(const sf::Color &color) {
     btnField.setFillColor(color);
+}
+
+void UI_Button::SetOutlineColor(const sf::Color &color) {
+    btnField.setOutlineColor(color);
+}
+
+void UI_Button::SetOutlineThickness(float thickness) {
+    btnField.setOutlineThickness(thickness);
 }
 
 void UI_Button::SetSize(const sf::Vector2f &size) {
@@ -137,6 +147,28 @@ void UI_Button::SetPosition(const sf::Vector2f &position) {
     btnField.setPosition(position);
     sf::FloatRect btnRect = this->GetGlobalBounds();
     btnText.setPosition(btnRect.left + btnRect.width / 2.0f, btnRect.top + btnRect.height / 2.0f);
+}
+
+void UI_Button::SetTextureRect(const sf::IntRect& rect) {
+
+    btnField.setTextureRect(rect);
+}
+
+sf::Color UI_Button::GetFillColor() {
+    return btnField.getFillColor();
+}
+
+void UI_Button::SetRotation(float angle) {
+    btnField.setRotation(angle);
+    btnText.setRotation(angle);
+}
+
+sf::Vector2f UI_Button::GetSize() {
+    return btnField.getSize();
+}
+
+float UI_Button::GetRotation() {
+    return btnField.getRotation();
 }
 
 

@@ -8,15 +8,6 @@
 #include <SFML/Graphics.hpp>
 using namespace sf;
 
-// MY v1
-/*// const Color DEFAULT_BACKGROUND_COLOR(227, 11, 0); // OK
-const Color DEFAULT_BACKGROUND_COLOR(0, 150, 56);
-const Color DEFAULT_BTN_FILL_COLOR(150, 7, 0); // OK
-//const Color DEFAULT_BTN_PRESSED_FILTER_COLOR(0, 0, 0, 50);
-const Color DEFAULT_BTN_TEXT_FILL_COLOR(0, 150, 56);
-const Color DEFAULT_TEXT_ON_BACKGROUND_COLOR(0, 10, 4);*/
-
-// MY v2
 const Color DEFAULT_BACKGROUND_COLOR(0, 0, 0);
 const Color DEFAULT_BTN_FILL_COLOR(150, 7, 0);
 const Color DEFAULT_BTN_PRESSED_OR_ACTIVE_FILTER_COLOR(0, 0, 0, 50);
